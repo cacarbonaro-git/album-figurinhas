@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conferência de Troca — Figurinhas</title>
+<style>
+  :root{--bg:#0f1320;--surface:#171c2e;--surface2:#1f2740;--line:#2c3350;--txt:#eef1fb;
+    --muted:#9aa3c7;--accent:#5b8cff;--recebe:#3ecf8e;--da:#f6a35b;--gold:#f6c453;--radius:14px;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--txt);-webkit-text-size-adjust:100%}
+  header{padding:16px 14px 10px;border-bottom:1px solid var(--line)}
+  h1{font-size:18px;margin:0 0 3px}
+  .sub{color:var(--muted);font-size:13px}
+  main{max-width:1000px;margin:0 auto;padding:14px}
+  .inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:680px){.inputs{grid-template-columns:1fr}}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+  .panel h2{font-size:13px;margin:0 0 4px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .panel .hint{font-size:11px;color:var(--muted);margin:0 0 8px}
+  textarea{width:100%;height:120px;resize:vertical;background:var(--surface2);color:var(--txt);
+    border:1px solid var(--line);border-radius:10px;padding:10px;font:13px/1.4 ui-monospace,Menlo,monospace}
+  textarea:focus{outline:none;border-color:var(--accent)}
+  .me{border-top:3px solid var(--accent)}
+  .them{border-top:3px solid var(--gold)}
+  .bar{display:flex;gap:10px;align-items:center;margin:16px 0;flex-wrap:wrap}
+  button{font:inherit;font-weight:600;cursor:pointer;border:none;border-radius:10px;padding:11px 18px}
+  .go{background:var(--accent);color:#fff}
+  .ghost{background:var(--surface2);color:var(--txt);border:1px solid var(--line);font-weight:500}
+  .results{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  @media(max-width:680px){.results{grid-template-columns:1fr}}
+  .res{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+  .res.r-recebe{border-left:4px solid var(--recebe)}
+  .res.r-da{border-left:4px solid var(--da)}
+  .res h3{margin:0 0 2px;font-size:15px;display:flex;align-items:center;gap:8px}
+  .res .tot{font-size:13px;color:var(--muted);margin-bottom:10px}
+  .line{display:flex;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:14px;align-items:baseline}
+  .line .team{min-width:96px;font-weight:600}
+  .line .nums{color:var(--txt)}
+  .recebe .num,.da .num{display:inline-block;background:var(--surface2);border:1px solid var(--line);
+    border-radius:7px;padding:1px 7px;margin:2px 3px 0 0;font-size:13px}
+  .r-recebe .num{border-color:#2f6b50}.r-da .num{border-color:#7a5430}
+  .none{color:var(--muted);font-size:13px;padding:8px 0}
+  .wa{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+  .wa h3{margin:0 0 8px;font-size:14px}
+  .wa textarea{height:150px}
+  .copied{color:var(--recebe);font-size:13px;margin-left:8px}
+  details{margin-top:14px;color:var(--muted);font-size:13px}
+  summary{cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+  <h1>🔁 Conferência de troca</h1>
+  <div class="sub">Cole as listas no formato do app (<code>TIME 🏳️: 1, 3, 4</code>). O cruzamento é automático.</div>
+</header>
+<main>
+  <div class="inputs">
+    <div class="panel me">
+      <h2>🙋 Eu — minhas faltantes</h2>
+      <p class="hint">As figurinhas que EU preciso. (Cole aqui a sua lista de faltantes.)</p>
+      <textarea id="myMissing"></textarea>
+    </div>
+    <div class="panel them">
+      <h2>🧑 Outra pessoa — repetidas dela</h2>
+      <p class="hint">As repetidas que ELA tem pra dar.</p>
+      <textarea id="theirDup"></textarea>
+    </div>
+    <div class="panel me">
+      <h2>🙋 Eu — minhas repetidas</h2>
+      <p class="hint">As repetidas que EU tenho pra dar.</p>
+      <textarea id="myDup"></textarea>
+    </div>
+    <div class="panel them">
+      <h2>🧑 Outra pessoa — faltantes dela</h2>
+      <p class="hint">As figurinhas que ELA precisa.</p>
+      <textarea id="theirMissing"></textarea>
+    </div>
+  </div>
+
+  <div class="bar">
+    <button class="go" id="run">Conferir troca</button>
+    <button class="ghost" id="demo">Carregar exemplo</button>
+    <button class="ghost" id="clear">Limpar</button>
+  </div>
+
+  <div class="results" id="results"></div>
+  <div class="wa" id="waBox" style="display:none">
+    <h3>📩 Mensagem pronta pro WhatsApp <span class="copied" id="copied"></span></h3>
+    <textarea id="waText" readonly></textarea>
+    <div style="margin-top:8px"><button class="ghost" id="copy">Copiar mensagem</button></div>
+  </div>
+
+  <details>
+    <summary>Como a conferência funciona</summary>
+    <p>É só interseção de conjuntos, por time. <b>Você recebe</b> = (minhas faltantes) ∩ (repetidas dela).
+    <b>Você dá</b> = (minhas repetidas) ∩ (faltantes dela). O cruzamento é simétrico: o que aparece como
+    "você dá" pra você, aparece como "ela recebe" pra ela. Times sem casamento somem da lista.</p>
+  </details>
+</main>
+
+<script>
+/* ---------- Parser do formato "TIME emoji: n, n, n" ---------- */
+// Chave = o rótulo inteiro antes do ":" normalizado (mantém o emoji, então
+// FWC 🏆 / FWC 🌎 / FWC 📜 ficam distintos). Robusto a espaços e maiúsculas.
+function normKey(raw){
+  return raw.normalize("NFC").replace(/️/g,"").replace(/\s+/g," ").trim().toUpperCase();
+}
+function parseList(text){
+  const map = new Map(); // key -> {label, nums:Set}
+  (text||"").split(/\r?\n/).forEach(line=>{
+    const i = line.indexOf(":");
+    if(i<0) return;
+    const left = line.slice(0,i);
+    const right = line.slice(i+1);
+    const nums = (right.match(/\d+/g)||[]).map(Number);
+    if(!nums.length) return;            // ignora títulos/cabeçalhos sem números
+    const key = normKey(left);
+    if(!key) return;
+    if(!map.has(key)) map.set(key,{label:left.replace(/\s+/g," ").trim(), nums:new Set()});
+    nums.forEach(n=>map.get(key).nums.add(n));
+  });
+  return map;
+}
+// Interseção: para cada time presente nos dois, números em comum.
+function cross(aMap, bMap){
+  const out=[]; let total=0;
+  aMap.forEach((a,key)=>{
+    const b=bMap.get(key); if(!b) return;
+    const common=[...a.nums].filter(n=>b.nums.has(n)).sort((x,y)=>x-y);
+    if(common.length){ out.push({label:a.label, nums:common}); total+=common.length; }
+  });
+  out.sort((x,y)=>y.nums.length-x.nums.length || x.label.localeCompare(y.label));
+  return {rows:out, total};
+}
+
+/* ---------- Render ---------- */
+const $=s=>document.querySelector(s);
+function renderSide(title, emoji, cls, data){
+  const head=`<h3>${emoji} ${title}</h3><div class="tot">${data.total} figurinha${data.total!==1?'s':''} em ${data.rows.length} time${data.rows.length!==1?'s':''}</div>`;
+  if(!data.rows.length) return `<div class="res ${cls}">${head}<div class="none">Nenhum casamento. Confira se os dois lados estão preenchidos.</div></div>`;
+  const body=data.rows.map(r=>`<div class="line"><span class="team">${r.label}</span>
+    <span class="nums">${r.nums.map(n=>`<span class="num">${n}</span>`).join("")}</span></div>`).join("");
+  return `<div class="res ${cls}">${head}${body}</div>`;
+}
+function waMessage(recebe, da){
+  const fmt=d=>d.rows.map(r=>`${r.label}: ${r.nums.join(", ")}`).join("\n") || "(nada)";
+  return `🔁 Conferência de troca\n\n✅ VOCÊ ME DÁ (${recebe.total}):\n${fmt(recebe)}\n\n🎁 EU TE DOU (${da.total}):\n${fmt(da)}`;
+}
+function run(){
+  const myMissing=parseList($("#myMissing").value);
+  const theirDup =parseList($("#theirDup").value);
+  const myDup    =parseList($("#myDup").value);
+  const theirMissing=parseList($("#theirMissing").value);
+  const recebe=cross(myMissing, theirDup);   // minhas faltas ∩ repetidas dela
+  const da    =cross(myDup, theirMissing);   // minhas repetidas ∩ faltas dela
+  $("#results").innerHTML =
+    renderSide("Você RECEBE","✅","r-recebe",recebe)+
+    renderSide("Você DÁ","🎁","r-da",da);
+  $("#waText").value=waMessage(recebe,da);
+  $("#waBox").style.display="block";
+  $("#copied").textContent="";
+}
+$("#run").onclick=run;
+$("#clear").onclick=()=>{["#myMissing","#theirDup","#myDup","#theirMissing"].forEach(s=>$(s).value="");
+  $("#results").innerHTML="";$("#waBox").style.display="none";};
+$("#copy").onclick=async()=>{try{await navigator.clipboard.writeText($("#waText").value);
+  $("#copied").textContent="copiado!";}catch(e){$("#copied").textContent="selecione e copie";}};
+
+/* ---------- Exemplo (usa a sua lista real de faltantes) ---------- */
+const DEMO_MY_MISSING=`Faltantes
+FWC 🏆: 2, 4
+FWC 🌎: 5, 6, 8
+FWC 📜: 14
+BRA 🇧🇷: 1, 3, 4
+HAI 🇭🇹: 4, 5, 6, 10, 11, 15, 20
+POR 🇵🇹: 1, 5, 6, 7, 12, 15
+TUR 🇹🇷: 1, 3, 4, 7, 13, 20
+ESP 🇪🇸: 1, 2, 17
+CC 🥤: 5, 6, 8, 9, 10, 11, 13`;
+const DEMO_THEIR_DUP=`Repetidas
+BRA 🇧🇷: 1, 3, 9
+POR 🇵🇹: 1, 5
+HAI 🇭🇹: 4, 10
+FWC 🏆: 2
+CC 🥤: 5, 9, 13
+ARG 🇦🇷: 10`;
+const DEMO_MY_DUP=`TUR 🇹🇷: 1, 7, 9
+USA 🇺🇸: 6, 14
+ESP 🇪🇸: 2`;
+const DEMO_THEIR_MISSING=`TUR 🇹🇷: 1, 4
+ESP 🇪🇸: 2
+GHA 🇬🇭: 3`;
+$("#demo").onclick=()=>{
+  $("#myMissing").value=DEMO_MY_MISSING; $("#theirDup").value=DEMO_THEIR_DUP;
+  $("#myDup").value=DEMO_MY_DUP; $("#theirMissing").value=DEMO_THEIR_MISSING; run();
+};
+// começa com o exemplo carregado pra você ver funcionando
+$("#demo").onclick();
+</script>
+</body>
+</html>

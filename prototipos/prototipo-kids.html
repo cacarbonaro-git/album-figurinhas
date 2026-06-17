@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meu Álbum de Figurinhas</title>
+<style>
+  :root{
+    --azul:#4f8cff; --verde:#2ec27e; --laranja:#ff9f43; --roxo:#a55eea;
+    --rosa:#ff6b9d; --amarelo:#ffd43b; --bg1:#eaf2ff; --bg2:#fef0f7;
+    --txt:#2b2f45; --muted:#7b829e; --card:#ffffff; --line:#eceffb; --r:22px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:"Baloo 2",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:var(--txt);background:linear-gradient(160deg,var(--bg1),var(--bg2));min-height:100vh}
+  .phone{max-width:430px;margin:0 auto;min-height:100vh;position:relative;
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));padding-bottom:84px;overflow:hidden}
+  .screen{display:none;padding:18px 16px 10px;animation:fade .2s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h1{font-size:24px;margin:4px 0}
+  .muted{color:var(--muted)}
+  .big-btn{display:flex;align-items:center;gap:12px;width:100%;border:none;cursor:pointer;
+    background:var(--card);border-radius:var(--r);padding:16px;font:inherit;font-weight:700;font-size:17px;
+    box-shadow:0 6px 18px rgba(80,110,200,.10);margin-top:12px;color:var(--txt)}
+  .big-btn .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:24px;color:#fff;flex:0 0 auto}
+  .big-btn small{display:block;font-weight:500;font-size:13px;color:var(--muted)}
+  .ic.vd{background:var(--verde)} .ic.rx{background:var(--roxo)}
+  /* INÍCIO */
+  .hello{display:flex;align-items:center;gap:14px;margin-top:6px}
+  .mascot{width:92px;height:92px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;font-size:48px;
+    background:radial-gradient(circle at 35% 30%,#c89bf2,#a55eea);box-shadow:0 8px 16px rgba(165,94,234,.35)}
+  .albtag{display:inline-flex;align-items:center;gap:6px;background:#fff;border:2px solid var(--line);
+    border-radius:999px;padding:5px 12px;font-weight:700;font-size:14px;cursor:pointer;margin-top:4px}
+  .ring-wrap{background:var(--card);border-radius:var(--r);padding:18px;margin-top:16px;text-align:center;
+    box-shadow:0 6px 18px rgba(80,110,200,.10)}
+  .ring{width:150px;height:150px;margin:6px auto 2px}
+  .ring .pct{font-size:30px;font-weight:800;fill:var(--txt)}
+  .ring .lab{font-size:11px;fill:var(--muted)}
+  .pills{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+  .pill{background:var(--bg1);border-radius:999px;padding:6px 13px;font-weight:700;font-size:14px}
+  .pill.r{background:#fff2e6;color:var(--laranja)} .pill.f{background:#ffe9f0;color:var(--rosa)}
+  .pill.t{background:#e4f8ee;color:var(--verde)}
+  /* ÁLBUM */
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;margin:0 -16px;padding-left:16px}
+  .chip{flex:0 0 auto;background:var(--card);border:2px solid var(--line);border-radius:999px;
+    padding:8px 15px;font-weight:700;font-size:14px;cursor:pointer}
+  .chip.active{background:var(--roxo);border-color:var(--roxo);color:#fff}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+  .fig{position:relative;aspect-ratio:1/1.15;border-radius:16px;cursor:pointer;border:2px solid var(--line);
+    background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    font-weight:800;transition:transform .08s}
+  .fig:active{transform:scale(.94)}
+  .fig .c{font-size:14px}
+  .fig .s{font-size:18px}
+  .fig.falta{background:#f4f5fb;color:#b9c0d8;border-style:dashed}
+  .fig.tenho{background:#e4f8ee;border-color:var(--verde);color:var(--verde)}
+  .fig.repetida{background:#fff2e6;border-color:var(--laranja);color:var(--laranja)}
+  .fig .badge{position:absolute;top:-7px;right:-7px;background:var(--laranja);color:#fff;border-radius:999px;
+    min-width:22px;height:22px;display:grid;place-items:center;font-size:12px;padding:0 5px;box-shadow:0 3px 8px rgba(255,159,67,.5)}
+  .legend{display:flex;gap:12px;justify-content:center;margin:14px 0 2px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .legend b{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:4px}
+  /* CARDS */
+  .ccard{background:var(--card);border-radius:var(--r);padding:16px;margin-top:14px;box-shadow:0 6px 18px rgba(80,110,200,.10)}
+  .ccard h3{margin:0 0 4px;font-size:17px}
+  .ccard .muted{font-size:13px}
+  .step{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--roxo);
+    color:#fff;font-weight:800;font-size:13px;margin-right:6px;vertical-align:-3px}
+  textarea{width:100%;resize:vertical;border:2px solid var(--line);border-radius:14px;padding:12px;
+    font:13px/1.45 ui-monospace,Menlo,monospace;margin-top:10px;background:#fbfcff;color:var(--txt)}
+  textarea:focus{outline:none;border-color:var(--roxo)}
+  #myExport{height:120px;background:#f5fff9}
+  #pasteIn{height:104px}
+  .rowbtns{display:flex;gap:9px;margin-top:10px;flex-wrap:wrap}
+  .wa-btn{flex:1;border:none;cursor:pointer;border-radius:14px;padding:14px;font:inherit;font-weight:800;font-size:16px;
+    color:#fff;background:#25D366;display:flex;gap:7px;justify-content:center;align-items:center;text-decoration:none}
+  .go{width:100%;border:none;cursor:pointer;border-radius:14px;padding:14px;font:inherit;font-weight:800;font-size:16px;
+    color:#fff;background:var(--roxo);margin-top:10px}
+  .ghost{border:2px solid var(--line);background:#fff;color:var(--txt);border-radius:14px;padding:13px 16px;
+    font:inherit;font-weight:700;cursor:pointer}
+  .swap{display:grid;gap:10px;margin-top:12px}
+  .swap .box{border-radius:16px;padding:12px}
+  .swap .box.rec{background:#e9f9f0} .swap .box.give{background:#fff4e8}
+  .swap .box h4{margin:0 0 6px;font-size:14px}
+  .swap .grp{font-size:13px;margin:5px 0}
+  .swap .n{display:inline-block;background:#fff;border-radius:8px;padding:2px 8px;margin:3px 4px 0 0;font-weight:700;font-size:13px}
+  .safe{background:#eef3ff;border-radius:14px;padding:11px 12px;font-size:12.5px;color:#4a5577;margin-top:12px;display:flex;gap:8px}
+  .empty{color:var(--muted);text-align:center;padding:16px 6px;font-size:14px}
+  /* ÁLBUNS / BUSCA */
+  .alist{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .aitem{display:flex;align-items:center;gap:11px;border:2px solid var(--line);border-radius:14px;padding:11px;cursor:pointer;background:#fff}
+  .aitem.cur{border-color:var(--roxo);background:#f7f1ff}
+  .aitem .ce{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:21px;background:var(--bg2);flex:0 0 auto}
+  .aitem .nm{font-weight:800}.aitem .me{font-size:12px;color:var(--muted)}
+  .aitem .tickr{margin-left:auto;color:var(--roxo);font-weight:800}
+  .result{border:2px dashed var(--verde);border-radius:14px;padding:12px;margin-top:10px;background:#f3fff8}
+  .result.no{border-color:var(--rosa);background:#fff5f8}
+  .addbtn{border:none;background:var(--verde);color:#fff;font-weight:800;border-radius:12px;padding:10px 14px;cursor:pointer;font:inherit}
+  /* EU */
+  label.fld{display:block;font-weight:700;font-size:13px;color:var(--muted);margin:12px 0 5px}
+  input.t{width:100%;border:2px solid var(--line);border-radius:13px;padding:11px 12px;font:inherit;font-size:15px}
+  input.t:focus{outline:none;border-color:var(--roxo)}
+  .emoji-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+  .epick{width:42px;height:42px;border-radius:12px;border:2px solid var(--line);background:#fff;font-size:22px;cursor:pointer;display:grid;place-items:center}
+  .epick.sel{border-color:var(--roxo);background:#f3ecfe}
+  .saved{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:var(--verde);color:#fff;
+    padding:9px 18px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transition:opacity .25s;z-index:70;pointer-events:none}
+  .saved.show{opacity:1}
+  /* LOGIN */
+  .login{position:fixed;inset:0;z-index:90;background:linear-gradient(160deg,var(--bg1),var(--bg2));
+    display:none;align-items:center;justify-content:center;padding:20px}
+  .login.open{display:flex}
+  .login-card{background:#fff;border-radius:26px;max-width:380px;width:100%;padding:24px;
+    box-shadow:0 12px 40px rgba(80,110,200,.18);text-align:center}
+  .login-mascot{width:84px;height:84px;margin:0 auto 8px;border-radius:50%;display:grid;place-items:center;
+    font-size:44px;background:radial-gradient(circle at 35% 30%,#c89bf2,#a55eea)}
+  .login-card h2{margin:6px 0 4px}
+  .login-card .fld{text-align:left}
+  .phone-row{display:flex;gap:8px}
+  .phone-row .ddi{width:78px;flex:0 0 auto;text-align:center}
+  .login-card .go{margin-top:16px}
+  .login-card input.code{text-align:center;letter-spacing:8px;font-size:24px;font-weight:800}
+  .finep{font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.4}
+  nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;
+    background:#fff;border-top:1px solid var(--line);display:flex;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:40}
+  nav button{flex:1;border:none;background:none;cursor:pointer;font:inherit;color:var(--muted);
+    display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:700;padding:4px}
+  nav button .e{font-size:21px}
+  nav button.active{color:var(--roxo)}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- ===== INÍCIO ===== -->
+  <section class="screen active" id="s-inicio">
+    <div class="hello">
+      <div class="mascot" id="mascotBadge">🦄</div>
+      <div>
+        <div class="muted">Oi, campeão! 👋</div>
+        <h1 style="margin:2px 0" id="kidName">Theo</h1>
+        <div class="albtag" onclick="go('eu')">📚 <span id="albName">Copa 2026</span> ▾</div>
+      </div>
+    </div>
+    <div class="ring-wrap">
+      <svg class="ring" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#eceffb" stroke-width="14"/>
+        <circle id="ringFg" cx="60" cy="60" r="52" fill="none" stroke="#2ec27e" stroke-width="14"
+          stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="327" stroke-dashoffset="327"/>
+        <text id="ringPct" class="pct" x="60" y="58" text-anchor="middle">0%</text>
+        <text class="lab" x="60" y="74" text-anchor="middle">do álbum</text>
+      </svg>
+      <div class="muted" id="faltamTxt">Bora completar!</div>
+      <div class="pills">
+        <span class="pill t" id="pT">✓ 0 tenho</span>
+        <span class="pill f" id="pF">✦ 0 faltam</span>
+        <span class="pill r" id="pR">+ 0 repetidas</span>
+      </div>
+    </div>
+    <button class="big-btn" onclick="go('album')">
+      <span class="ic rx">📒</span><span>Meu álbum<small>Marque o que você já tem</small></span></button>
+    <button class="big-btn" onclick="go('trocar')">
+      <span class="ic vd">🔁</span><span>Trocar figurinhas<small>Mande sua lista e confira a do amigo</small></span></button>
+  </section>
+
+  <!-- ===== ÁLBUM ===== -->
+  <section class="screen" id="s-album">
+    <h1>📒 <span id="albumTitle">Meu álbum</span></h1>
+    <div class="muted">Toque numa figurinha pra trocar entre <b>falta → tenho → repetida</b>.</div>
+    <div class="chips" id="teamChips"></div>
+    <div class="grid" id="figGrid"></div>
+    <div class="legend">
+      <span><b style="background:#f4f5fb;border:1px dashed #b9c0d8"></b>falta</span>
+      <span><b style="background:#2ec27e"></b>tenho</span>
+      <span><b style="background:#ff9f43"></b>repetida</span>
+    </div>
+  </section>
+
+  <!-- ===== TROCAR ===== -->
+  <section class="screen" id="s-trocar">
+    <h1>🔁 Trocar</h1>
+    <div class="ccard">
+      <h3><span class="step">1</span>Mandar minha lista</h3>
+      <div class="muted">Suas repetidas e o que falta. O responsável escolhe o amigo no WhatsApp.</div>
+      <textarea id="myExport" readonly></textarea>
+      <div class="rowbtns">
+        <a class="wa-btn" id="sendMineBtn" href="#" target="_blank" rel="noopener">💬 Enviar no WhatsApp</a>
+        <button class="ghost" onclick="copyEl('myExport')">Copiar</button>
+      </div>
+    </div>
+    <div class="ccard">
+      <h3><span class="step">2</span>Recebi a lista de um amigo</h3>
+      <div class="muted">Cola aqui o que o amigo mandou. Eu cruzo com o seu álbum e mostro a troca.</div>
+      <textarea id="pasteIn" placeholder="Cola a mensagem do amigo aqui…"></textarea>
+      <button class="go" onclick="conferir()">Conferir troca 🎉</button>
+      <div id="confResult"></div>
+    </div>
+  </section>
+
+  <!-- ===== EU / ÁLBUNS ===== -->
+  <section class="screen" id="s-eu">
+    <h1>⚙️ Personalizar</h1>
+
+    <div class="ccard">
+      <h3>📚 Qual álbum você coleciona?</h3>
+      <div class="muted">Digite o nome do álbum e a gente busca pra você.</div>
+      <input class="t" id="albSearch" placeholder="Ex: Copa 2026, Animais, Heróis…" style="margin-top:10px" oninput="searchAlbum()">
+      <div id="searchResult"></div>
+      <div class="muted" style="margin-top:14px;font-weight:700">Seus álbuns</div>
+      <div class="alist" id="myAlbums"></div>
+    </div>
+
+    <div class="ccard">
+      <h3>🌟 Sobre você</h3>
+      <label class="fld">Seu nome</label>
+      <input class="t" id="cfgName" placeholder="Ex: Theo" oninput="onCfg()">
+      <label class="fld">Escolha seu mascote</label>
+      <div class="emoji-row" id="mascotPick"></div>
+    </div>
+
+    <div class="ccard">
+      <h3>🔐 Conta</h3>
+      <div class="muted">Logado com o WhatsApp: <b id="acctPhone">—</b></div>
+      <button class="ghost" style="width:100%;margin-top:12px" onclick="logout()">Sair desta conta</button>
+    </div>
+  </section>
+
+  <nav>
+    <button class="active" data-s="inicio" onclick="go('inicio')"><span class="e">🏠</span>Início</button>
+    <button data-s="album" onclick="go('album')"><span class="e">📒</span>Álbum</button>
+    <button data-s="trocar" onclick="go('trocar')"><span class="e">🔁</span>Trocar</button>
+    <button data-s="eu" onclick="go('eu')"><span class="e">⚙️</span>Eu</button>
+  </nav>
+</div>
+<div class="saved" id="savedToast">✓ salvo</div>
+
+<!-- ===== LOGIN POR WHATSAPP ===== -->
+<div class="login" id="login">
+  <div class="login-card">
+    <div class="login-mascot">🦄</div>
+    <div id="loginStep1">
+      <h2>Bem-vindo! 👋</h2>
+      <p class="muted" style="font-size:14px">Entre com o WhatsApp pra guardar seu álbum e trocar com amigos.</p>
+      <label class="fld">Seu nome</label>
+      <input class="t" id="loginName" placeholder="Ex: Theo">
+      <label class="fld">WhatsApp do responsável</label>
+      <div class="phone-row">
+        <input class="t ddi" id="loginDDI" value="+55">
+        <input class="t" id="loginPhone" inputmode="numeric" placeholder="11 99999-0000">
+      </div>
+      <button class="go" onclick="sendCode()">Receber código no WhatsApp 💬</button>
+      <p class="finep">🛡️ Use o número de um adulto responsável. A gente não compartilha seu número com ninguém.</p>
+    </div>
+    <div id="loginStep2" style="display:none">
+      <h2>Digite o código 🔐</h2>
+      <p class="muted" style="font-size:14px">Enviamos um código pro seu WhatsApp. <span id="demoHint"></span></p>
+      <input class="t code" id="loginCode" inputmode="numeric" maxlength="4" placeholder="0000">
+      <button class="go" onclick="verifyCode()">Entrar 🎉</button>
+      <button class="ghost" style="width:100%;margin-top:9px" onclick="backToStep1()">Voltar</button>
+      <div id="loginErr" class="finep" style="color:var(--rosa)"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   FONTE DE REFERÊNCIA DE ÁLBUNS (simula o backend/API de catálogo).
+   No produto real, buscar(nome) é uma chamada à API que devolve esta estrutura.
+   Aqui está embutida; cada álbum sabe se montar via build().
+   ========================================================================= */
+function mkTeam(code,flag,name,n){
+  const a=[{code:code+"1", s:flag, team:name, label:"Escudo"}];
+  for(let i=2;i<=n;i++) a.push({code:code+i, s:flag, team:name, label:"Jogador "+(i-1)});
+  return a;
+}
+const ALBUMS_REF = [
+  { id:"copa-2026", name:"Copa 2026", emoji:"⚽", publisher:"Panini",
+    aliases:["copa","mundial","world cup","fifa","copa do mundo","panini"],
+    build:()=>[
+      {code:"FWC1",s:"🏆",team:"Especiais",label:"Taça"},
+      {code:"FWC2",s:"🌎",team:"Especiais",label:"Mundo"},
+      {code:"FWC3",s:"📜",team:"Especiais",label:"Pôster"},
+      ...mkTeam("BRA","🇧🇷","Brasil",6),
+      ...mkTeam("ARG","🇦🇷","Argentina",6),
+      ...mkTeam("USA","🇺🇸","EUA",6),
+    ]},
+  { id:"animais-br", name:"Animais do Brasil", emoji:"🐾", publisher:"Demo",
+    aliases:["animais","bichos","fauna","natureza"],
+    build:()=>[
+      {code:"MAM1",s:"🐆",team:"Mamíferos",label:"Onça-pintada"},
+      {code:"MAM2",s:"🐒",team:"Mamíferos",label:"Mico-leão"},
+      {code:"MAM3",s:"🐺",team:"Mamíferos",label:"Lobo-guará"},
+      {code:"AVE1",s:"🦜",team:"Aves",label:"Arara-azul"},
+      {code:"AVE2",s:"🦤",team:"Aves",label:"Tucano"},
+      {code:"AVE3",s:"🐦",team:"Aves",label:"Beija-flor"},
+      {code:"REP1",s:"🐊",team:"Répteis",label:"Jacaré-açu"},
+      {code:"REP2",s:"🐍",team:"Répteis",label:"Jiboia"},
+    ]},
+  { id:"herois", name:"Super-Heróis", emoji:"🦸", publisher:"Demo",
+    aliases:["herois","heroes","super","marvel","dc","quadrinhos"],
+    build:()=>[
+      ...mkHero("VOA","🦸","Voadores",4),
+      ...mkHero("FOR","💪","Forças",4),
+      ...mkHero("MAG","✨","Magia",4),
+    ]},
+];
+function mkHero(code,emoji,team,n){const a=[];for(let i=1;i<=n;i++)a.push({code:code+i,s:emoji,team,label:team+" "+i});return a;}
+const refById=id=>ALBUMS_REF.find(a=>a.id===id);
+const MASCOTS=["🦄","🐯","🐼","🦊","🐨","🐲","⭐","🚀","⚽","🦁"];
+
+/* ---- cache de figurinhas e índices por álbum ---- */
+const _stk={}, _idx={}, _torder={}, _temoji={};
+function stickersOf(id){
+  if(!_stk[id]){ const st=refById(id).build(); _stk[id]=st;
+    _idx[id]=Object.fromEntries(st.map(s=>[s.code,s]));
+    _torder[id]=[...new Set(st.map(s=>s.team))];
+    _temoji[id]={}; st.forEach(s=>{if(!_temoji[id][s.team])_temoji[id][s.team]=s.s;});
+  }
+  return _stk[id];
+}
+const curId=()=>ST.currentId;
+const curStk=()=>stickersOf(curId());
+const curIdx=()=>{stickersOf(curId());return _idx[curId()];};
+const curOrder=()=>{stickersOf(curId());return _torder[curId()];};
+const curEmoji=()=>{stickersOf(curId());return _temoji[curId()];};
+const curRef=()=>refById(curId());
+const mine=()=>ST.albums[curId()].mine;
+
+/* ===================== ESTADO (persistido, por álbum) ===================== */
+const KEY="fig_state_v4";
+function freshMine(id){const m={};stickersOf(id).forEach(s=>m[s.code]="falta");return m;}
+function makeDefault(){
+  const st={user:null, config:{kidName:"Theo",mascot:"🦄"}, currentId:"copa-2026", albums:{}};
+  st.albums["copa-2026"]={mine:freshMine("copa-2026")};
+  ["FWC1","BRA1","BRA2","ARG1","ARG2","ARG3","USA1","USA2","USA3","USA4"].forEach(c=>st.albums["copa-2026"].mine[c]="tenho");
+  ["ARG4","ARG5","USA5","BRA3","BRA4"].forEach(c=>st.albums["copa-2026"].mine[c]="repetida");
+  return st;
+}
+let ST=load();
+function load(){
+  try{const raw=localStorage.getItem(KEY);if(raw){const p=JSON.parse(raw);
+    // garante integridade: cada álbum possuído tem todas as figurinhas atuais
+    Object.keys(p.albums||{}).forEach(id=>{ if(refById(id)){ stickersOf(id).forEach(s=>{if(!(s.code in p.albums[id].mine))p.albums[id].mine[s.code]="falta";}); }});
+    if(!refById(p.currentId)) p.currentId=Object.keys(p.albums)[0]||"copa-2026";
+    return p;}}catch(e){}
+  return makeDefault();
+}
+let saveT;
+function save(toast){
+  try{localStorage.setItem(KEY,JSON.stringify(ST));}catch(e){}
+  if(toast){const t=document.getElementById("savedToast");t.classList.add("show");
+    clearTimeout(saveT);saveT=setTimeout(()=>{t.classList.remove("show");t.textContent="✓ salvo";},900);}
+}
+
+/* ===================== LÓGICA ===================== */
+const faltantesDe=()=>curStk().filter(s=>mine()[s.code]==="falta").map(s=>s.code);
+const repetidasDe=()=>curStk().filter(s=>mine()[s.code]==="repetida").map(s=>s.code);
+function groupLines(codes){
+  const set=new Set(codes),order=curOrder(),em=curEmoji(),stk=curStk(),lines=[];
+  order.forEach(team=>{const cs=stk.filter(s=>s.team===team&&set.has(s.code)).map(s=>s.code);
+    if(cs.length)lines.push(`${em[team]} ${team}: ${cs.join(", ")}`);});
+  return lines.join("\n");
+}
+
+/* ===================== INÍCIO ===================== */
+function refreshInicio(){
+  const stk=curStk(),total=stk.length;
+  const tenho=stk.filter(s=>mine()[s.code]!=="falta").length;
+  const falta=stk.filter(s=>mine()[s.code]==="falta").length;
+  const reps=repetidasDe().length;
+  const pct=Math.round(tenho/total*100);
+  document.getElementById("ringPct").textContent=pct+"%";
+  const C=327;document.getElementById("ringFg").setAttribute("stroke-dashoffset",C-C*pct/100);
+  document.getElementById("faltamTxt").textContent=falta?`Faltam ${falta} pra completar! 💪`:"Álbum completo! 🎉";
+  document.getElementById("pT").textContent=`✓ ${tenho} tenho`;
+  document.getElementById("pF").textContent=`✦ ${falta} faltam`;
+  document.getElementById("pR").textContent=`+ ${reps} repetidas`;
+  document.getElementById("albName").textContent=curRef().name;
+  document.getElementById("albumTitle").textContent=curRef().name;
+  document.getElementById("kidName").textContent=ST.config.kidName;
+  document.getElementById("mascotBadge").textContent=ST.config.mascot;
+}
+
+/* ===================== ÁLBUM ===================== */
+let curTeam="Todos";
+function renderChips(){
+  const teams=["Todos",...curOrder()];
+  document.getElementById("teamChips").innerHTML=teams.map(t=>
+    `<span class="chip ${t===curTeam?'active':''}" onclick="setTeam('${t}')">${t}</span>`).join("");
+}
+window.setTeam=t=>{curTeam=t;renderChips();renderGrid();};
+function renderGrid(){
+  const list=curStk().filter(s=>curTeam==="Todos"||s.team===curTeam);
+  document.getElementById("figGrid").innerHTML=list.map(s=>{
+    const st=mine()[s.code];const badge=st==="repetida"?`<span class="badge">+1</span>`:"";
+    return `<div class="fig ${st}" onclick="cycle('${s.code}')">${badge}
+      <span class="s">${st==="falta"?"❔":s.s}</span><span class="c">${s.code}</span></div>`;
+  }).join("");
+}
+window.cycle=code=>{const order=["falta","tenho","repetida"];
+  mine()[code]=order[(order.indexOf(mine()[code])+1)%3];
+  save();renderGrid();refreshInicio();};
+
+/* ===================== TROCAR ===================== */
+function myExportText(){
+  return `🔁 Figurinhas da ${curRef().name} — ${ST.config.kidName}\n\n`+
+    `🟠 TENHO REPETIDA (posso te dar):\n${groupLines(repetidasDe())||"(nenhuma)"}\n\n`+
+    `🟢 ESTÃO FALTANDO (preciso):\n${groupLines(faltantesDe())||"(nenhuma)"}\n\n`+
+    `📱 Meu WhatsApp: ${fmtPhone(ST.user&&ST.user.phone)}\n`+
+    `Me manda a sua que eu confiro a troca! 🛡️ Combinamos com um adulto, em lugar público.`;
+}
+function refreshExport(){const t=myExportText();
+  document.getElementById("myExport").value=t;
+  document.getElementById("sendMineBtn").href=`https://wa.me/?text=${encodeURIComponent(t)}`;}
+function parsePasted(text){
+  const dup=new Set(),miss=new Set();let mode=null;const idx=curIdx();
+  (text||"").split(/\r?\n/).forEach(line=>{const low=line.toLowerCase();
+    if(/repet|te dou|posso te dar|tenho|dou/.test(low))mode="dup";
+    else if(/falt|preciso|me ajuda|quero/.test(low))mode="miss";
+    const codes=(line.toUpperCase().match(/[A-Z]+\d+/g)||[]).filter(c=>idx[c]);
+    if(mode&&codes.length)codes.forEach(c=>(mode==="dup"?dup:miss).add(c));});
+  return {dup:[...dup],miss:[...miss]};
+}
+window.conferir=()=>{
+  const friend=parsePasted(document.getElementById("pasteIn").value);
+  const mf=new Set(faltantesDe()),mr=new Set(repetidasDe());
+  const ganha=friend.dup.filter(c=>mf.has(c)),dou=friend.miss.filter(c=>mr.has(c));
+  const box=document.getElementById("confResult");
+  if(!friend.dup.length&&!friend.miss.length){
+    box.innerHTML=`<div class="empty">Não achei figurinhas desse álbum no texto. Confira se vocês colecionam o mesmo álbum. 🙂</div>`;return;}
+  const chips=arr=>arr.length?groupLinesHTML(arr):`<div class="empty" style="padding:6px">nada dessa vez</div>`;
+  box.innerHTML=`
+    <div class="swap">
+      <div class="box rec"><h4>🟢 Você GANHA (${ganha.length})</h4>${chips(ganha)}</div>
+      <div class="box give"><h4>🟠 Você DÁ (${dou.length})</h4>${chips(dou)}</div>
+    </div>
+    <div class="safe">🛡️ <span>Combine com um adulto e encontrem em lugar público. Nunca passe seu endereço.</span></div>
+    <div class="rowbtns"><a class="wa-btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(replyText(ganha,dou))}">💬 Responder no WhatsApp</a></div>`;
+};
+function groupLinesHTML(codes){
+  const set=new Set(codes),stk=curStk(),em=curEmoji();
+  return curOrder().map(team=>{const cs=stk.filter(s=>s.team===team&&set.has(s.code));
+    if(!cs.length)return "";
+    return `<div class="grp"><b>${em[team]} ${team}:</b> ${cs.map(s=>`<span class="n">${s.code}</span>`).join("")}</div>`;}).join("");
+}
+function replyText(ganha,dou){
+  return `🔁 Fechou a troca da ${curRef().name}!\n\n🟢 Você me dá:\n${groupLines(ganha)||"(nada)"}\n\n🟠 Eu te dou:\n${groupLines(dou)||"(nada)"}\n\n🛡️ Combinamos com um adulto, em lugar público. — ${ST.config.kidName}`;
+}
+window.copyEl=async id=>{const el=document.getElementById(id);
+  try{await navigator.clipboard.writeText(el.value);}catch(e){el.select();}
+  const t=document.getElementById("savedToast");t.textContent="✓ copiado";t.classList.add("show");
+  clearTimeout(saveT);saveT=setTimeout(()=>{t.classList.remove("show");t.textContent="✓ salvo";},900);};
+
+/* ===================== EU / ÁLBUNS ===================== */
+function norm(s){return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim();}
+window.searchAlbum=()=>{
+  const q=norm(document.getElementById("albSearch").value);
+  const box=document.getElementById("searchResult");
+  if(q.length<2){box.innerHTML="";return;}
+  const hits=ALBUMS_REF.filter(a=>norm(a.name).includes(q)||a.aliases.some(al=>norm(al).includes(q)||q.includes(norm(al)))||q.includes(norm(a.name)));
+  if(!hits.length){box.innerHTML=`<div class="result no">Não encontrei "<b>${document.getElementById("albSearch").value}</b>" no catálogo. Em breve dá pra criar um novo! 🙂</div>`;return;}
+  box.innerHTML=hits.map(a=>{
+    const owned=!!ST.albums[a.id], n=stickersOf(a.id).length;
+    return `<div class="result"><b>${a.emoji} ${a.name}</b> · ${n} figurinhas · ${a.publisher}<br>
+      <button class="addbtn" style="margin-top:8px" onclick="pickAlbum('${a.id}')">${owned?'Abrir este álbum':'Adicionar e começar'}</button></div>`;
+  }).join("");
+};
+window.pickAlbum=id=>{
+  if(!ST.albums[id]) ST.albums[id]={mine:freshMine(id)};
+  ST.currentId=id; curTeam="Todos";
+  document.getElementById("albSearch").value=""; document.getElementById("searchResult").innerHTML="";
+  save(true); renderChips(); renderGrid(); refreshInicio(); renderMyAlbums();
+  go("album");
+};
+function renderMyAlbums(){
+  const ids=Object.keys(ST.albums);
+  document.getElementById("myAlbums").innerHTML=ids.map(id=>{
+    const a=refById(id);if(!a)return"";const cur=id===ST.currentId;
+    const stk=stickersOf(id),have=stk.filter(s=>ST.albums[id].mine[s.code]!=="falta").length;
+    return `<div class="aitem ${cur?'cur':''}" onclick="pickAlbum('${id}')">
+      <div class="ce">${a.emoji}</div>
+      <div><div class="nm">${a.name}</div><div class="me">${have}/${stk.length} coladas</div></div>
+      ${cur?'<span class="tickr">✓ atual</span>':''}</div>`;
+  }).join("");
+}
+function renderEu(){
+  document.getElementById("cfgName").value=ST.config.kidName;
+  document.getElementById("mascotPick").innerHTML=MASCOTS.map(e=>
+    `<button class="epick ${e===ST.config.mascot?'sel':''}" onclick="pickMascot('${e}')">${e}</button>`).join("");
+  document.getElementById("acctPhone").textContent=ST.user?fmtPhone(ST.user.phone):"—";
+  renderMyAlbums();
+}
+window.onCfg=()=>{ST.config.kidName=document.getElementById("cfgName").value.trim()||"Eu";save(true);refreshInicio();};
+window.pickMascot=e=>{ST.config.mascot=e;save(true);renderEu();refreshInicio();};
+
+/* ===================== NAVEGAÇÃO ===================== */
+window.go=name=>{
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById("s-"+name).classList.add("active");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.s===name));
+  if(name==="eu")renderEu();
+  if(name==="album"){renderChips();renderGrid();}
+  if(name==="trocar")refreshExport();
+  window.scrollTo(0,0);
+};
+
+/* ===================== LOGIN (WhatsApp) ===================== */
+function fmtPhone(p){if(!p)return"—";const d=(""+p).replace(/\D/g,"");
+  if(d.length>=12)return `+${d.slice(0,2)} ${d.slice(2,4)} ${d.slice(4,9)}-${d.slice(9)}`;
+  return "+"+d;}
+let pendingName="", pendingPhone="", pendingCode=null;
+function showLogin(){document.getElementById("login").classList.add("open");backToStep1();}
+window.backToStep1=()=>{document.getElementById("loginStep1").style.display="";
+  document.getElementById("loginStep2").style.display="none";};
+window.sendCode=()=>{
+  const name=document.getElementById("loginName").value.trim();
+  const ddi=document.getElementById("loginDDI").value.replace(/\D/g,"")||"55";
+  const ph=document.getElementById("loginPhone").value.replace(/\D/g,"");
+  if(name.length<1){alert("Escreva seu nome 🙂");return;}
+  if(ph.length<8){alert("Digite um WhatsApp válido com DDD");return;}
+  pendingName=name; pendingPhone=ddi+ph;
+  pendingCode=String(Math.floor(1000+Math.random()*9000));
+  document.getElementById("demoHint").innerHTML=`<i>(demo: use <b>${pendingCode}</b>)</i>`;
+  document.getElementById("loginErr").textContent="";
+  document.getElementById("loginCode").value="";
+  document.getElementById("loginStep1").style.display="none";
+  document.getElementById("loginStep2").style.display="";
+};
+window.verifyCode=()=>{
+  const c=document.getElementById("loginCode").value.replace(/\D/g,"");
+  if(c!==pendingCode){document.getElementById("loginErr").textContent="Código errado, tenta de novo. 🙂";return;}
+  ST.user={phone:pendingPhone}; ST.config.kidName=pendingName; save();
+  document.getElementById("login").classList.remove("open");
+  bootApp();
+};
+window.logout=()=>{ ST.user=null; save(); go("inicio"); showLogin(); };
+
+/* ===================== START ===================== */
+function bootApp(){renderChips();renderGrid();refreshInicio();}
+if(ST.user && ST.user.phone){ bootApp(); } else { bootApp(); showLogin(); }
+</script>
+</body>
+</html>

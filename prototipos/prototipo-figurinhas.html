@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Figurinhas — Protótipo de Consulta</title>
+<style>
+  :root{
+    --bg:#0f1320; --surface:#171c2e; --surface2:#1f2740; --line:#2c3350;
+    --txt:#eef1fb; --muted:#9aa3c7; --accent:#5b8cff; --accent2:#7aa2ff;
+    --gold:#f6c453; --gold-d:#caa033; --ok:#3ecf8e; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--txt);-webkit-text-size-adjust:100%;}
+  header{position:sticky;top:0;z-index:30;background:rgba(15,19,32,.92);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:10px 14px 12px;}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .brand{font-weight:700;font-size:16px;letter-spacing:.2px;margin-right:auto;display:flex;gap:8px;align-items:center}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+  select,input,button{font:inherit;color:var(--txt);background:var(--surface2);
+    border:1px solid var(--line);border-radius:10px;padding:9px 11px;outline:none}
+  select:focus,input:focus{border-color:var(--accent)}
+  input[type=search]{flex:1;min-width:140px}
+  .meta{color:var(--muted);font-size:13px}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .chip{cursor:pointer;background:var(--surface);border:1px solid var(--line);color:var(--muted);
+    padding:6px 11px;border-radius:999px;font-size:13px;white-space:nowrap}
+  .chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .chip.gold.active{background:var(--gold);border-color:var(--gold);color:#2a2410}
+  main{padding:14px;max-width:1100px;margin:0 auto}
+  .group{margin:18px 0 6px}
+  .group h2{font-size:14px;margin:0 0 10px;color:var(--muted);font-weight:600;
+    display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.6px}
+  .group h2 .cnt{color:var(--accent2);background:var(--surface);border:1px solid var(--line);
+    padding:1px 8px;border-radius:999px;font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px}
+  .card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:10px 8px;cursor:pointer;transition:transform .07s,border-color .15s;text-align:center;min-height:84px;
+    display:flex;flex-direction:column;justify-content:center;gap:4px}
+  .card:hover{transform:translateY(-2px);border-color:var(--accent)}
+  .card .code{font-weight:700;font-size:15px}
+  .card .lab{font-size:11px;color:var(--muted);line-height:1.25;overflow:hidden;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .card.special{border-color:var(--gold-d);background:linear-gradient(160deg,#241f12,#1d2236)}
+  .card.special .code{color:var(--gold)}
+  .star{position:absolute;top:6px;right:7px;font-size:11px;color:var(--gold)}
+  .empty{color:var(--muted);text-align:center;padding:50px 10px}
+  /* modal */
+  .ov{position:fixed;inset:0;z-index:50;background:rgba(6,8,15,.66);display:none;
+    align-items:flex-end;justify-content:center}
+  .ov.open{display:flex}
+  .sheet{background:var(--surface);border:1px solid var(--line);border-bottom:none;
+    border-radius:18px 18px 0 0;width:100%;max-width:460px;padding:18px 18px 26px;animation:up .18s ease}
+  @keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+  .sheet .big{display:flex;gap:14px;align-items:center}
+  .badge{width:70px;height:90px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:0 0 auto}
+  .badge.special{background:linear-gradient(160deg,#2a2412,#20263c);border-color:var(--gold-d);color:var(--gold)}
+  .sheet h3{margin:2px 0 4px;font-size:19px}
+  .kv{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px}
+  .kv div{display:flex;justify-content:space-between;font-size:14px}
+  .kv span{color:var(--muted)}
+  .pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+  .pill.gold{color:var(--gold);border-color:var(--gold-d)}
+  .x{float:right;cursor:pointer;color:var(--muted);font-size:22px;line-height:1;margin:-4px -2px 0}
+  @media(min-width:560px){.ov{align-items:center}.sheet{border-radius:18px;border-bottom:1px solid var(--line)}}
+  footer{color:var(--muted);font-size:12px;text-align:center;padding:24px 14px 40px;max-width:1100px;margin:0 auto}
+</style>
+</head>
+<body>
+<header>
+  <div class="row">
+    <div class="brand"><span class="dot"></span> Figurinhas · consulta</div>
+    <select id="albumSel" aria-label="Escolher álbum"></select>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <input id="q" type="search" placeholder="Buscar por número, código ou nome… (ex: BRA1, escudo, 230)">
+    <span class="meta" id="count"></span>
+  </div>
+  <div class="chips" id="cats"></div>
+</header>
+
+<main>
+  <div id="results"></div>
+  <footer id="albumInfo"></footer>
+</main>
+
+<div class="ov" id="ov">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+/* =========================================================================
+   CAMADA DE DADOS — álbum-agnóstica.
+   Cada álbum: { id, name, edition, publisher, stickers:[ {code,label,category,is_special} ] }
+   Hoje os dados moram aqui (JSON embutido). Para evoluir ao app real, basta
+   trocar esta constante por um fetch('/api/albums') — a UI abaixo não muda.
+   ========================================================================= */
+
+// --- Gerador do álbum da Copa 2026 (dados ilustrativos: a Panini só divulga
+//     a lista oficial de nomes perto do lançamento; números/estrutura são realistas) ---
+function buildCopa2026(){
+  const stickers = [];
+  // Abertura
+  const abertura = [
+    ["FWC1","Logo oficial da Copa 2026"],["FWC2","Taça do Mundo"],
+    ["FWC3","Pôster oficial"],["FWC4","Mascote"],
+    ["FWC5","Estádios — EUA"],["FWC6","Estádios — México"],["FWC7","Estádios — Canadá"]
+  ];
+  abertura.forEach(([code,label])=>stickers.push({code,label,category:"Abertura",is_special:false}));
+  // Legends (especiais)
+  for(let i=1;i<=12;i++) stickers.push({code:"LEG"+i,label:"Legend "+i,category:"Legends",is_special:true});
+
+  // 48 seleções (formato ampliado de 2026). Sedes confirmadas + classificadas prováveis
+  // + preenchimento ilustrativo. Códigos de 3 letras estilo Panini.
+  const teams = [
+    ["USA","Estados Unidos"],["MEX","México"],["CAN","Canadá"],["BRA","Brasil"],
+    ["ARG","Argentina"],["FRA","França"],["ENG","Inglaterra"],["ESP","Espanha"],
+    ["POR","Portugal"],["GER","Alemanha"],["NED","Holanda"],["ITA","Itália"],
+    ["BEL","Bélgica"],["CRO","Croácia"],["URU","Uruguai"],["COL","Colômbia"],
+    ["JPN","Japão"],["KOR","Coreia do Sul"],["MAR","Marrocos"],["SEN","Senegal"],
+    ["SUI","Suíça"],["DEN","Dinamarca"],["MEX2","Equador"],["URS","Sérvia"],
+    ["POL","Polônia"],["AUS","Austrália"],["NGA","Nigéria"],["GHA","Gana"],
+    ["CMR","Camarões"],["ECU","Peru"],["PAR","Paraguai"],["CHI","Chile"],
+    ["EGY","Egito"],["ALG","Argélia"],["CIV","Costa do Marfim"],["TUN","Tunísia"],
+    ["KSA","Arábia Saudita"],["IRN","Irã"],["QAT","Catar"],["UAE","Em. Árabes"],
+    ["TUR","Turquia"],["AUT","Áustria"],["SCO","Escócia"],["UKR","Ucrânia"],
+    ["CRC","Costa Rica"],["PAN","Panamá"],["JAM","Jamaica"],["NZL","Nova Zelândia"]
+  ];
+  teams.forEach(([code,name])=>{
+    stickers.push({code:code+"1",label:name+" — escudo",category:name,is_special:false});
+    stickers.push({code:code+"2",label:name+" — elenco",category:name,is_special:false});
+    for(let p=3;p<=13;p++){
+      stickers.push({code:code+p,label:name+" — Jogador "+(p-2),category:name,
+        is_special:(p===13)}); // a 13ª de cada time é especial (foil)
+    }
+  });
+  return {
+    id:"copa-2026", name:"Copa 2026", edition:"2026", publisher:"Panini (ilustrativo)",
+    total_count:stickers.length, stickers
+  };
+}
+
+// --- Segundo álbum, pequeno, só para provar que a arquitetura é multi-álbum ---
+const animais = {
+  id:"animais-br-2025", name:"Animais do Brasil", edition:"2025", publisher:"Demo",
+  stickers:[
+    {code:"M1",label:"Onça-pintada",category:"Mamíferos",is_special:true},
+    {code:"M2",label:"Mico-leão-dourado",category:"Mamíferos",is_special:false},
+    {code:"M3",label:"Tamanduá-bandeira",category:"Mamíferos",is_special:false},
+    {code:"M4",label:"Lobo-guará",category:"Mamíferos",is_special:false},
+    {code:"A1",label:"Arara-azul",category:"Aves",is_special:true},
+    {code:"A2",label:"Tucano-toco",category:"Aves",is_special:false},
+    {code:"A3",label:"Beija-flor",category:"Aves",is_special:false},
+    {code:"R1",label:"Jacaré-açu",category:"Répteis",is_special:false},
+    {code:"R2",label:"Jiboia",category:"Répteis",is_special:false},
+    {code:"R3",label:"Cágado",category:"Répteis",is_special:false}
+  ]
+};
+animais.total_count = animais.stickers.length;
+
+const CATALOGO = { albums:[ buildCopa2026(), animais ] };
+
+/* =========================================================================
+   UI — depende só do formato acima, não do conteúdo. Read-only / consulta.
+   ========================================================================= */
+const $ = s => document.querySelector(s);
+let state = { albumId: CATALOGO.albums[0].id, cat: "all", q: "" };
+
+function album(){ return CATALOGO.albums.find(a=>a.id===state.albumId); }
+
+function initAlbumSelect(){
+  const sel = $("#albumSel");
+  sel.innerHTML = CATALOGO.albums
+    .map(a=>`<option value="${a.id}">${a.name} · ${a.edition} (${a.total_count})</option>`).join("");
+  sel.value = state.albumId;
+  sel.onchange = e=>{ state.albumId=e.target.value; state.cat="all"; state.q=""; $("#q").value=""; renderAll(); };
+}
+
+function categories(){
+  const seen=[]; album().stickers.forEach(s=>{ if(!seen.includes(s.category)) seen.push(s.category); });
+  return seen;
+}
+
+function renderChips(){
+  const cats = categories();
+  const chips = [`<span class="chip ${state.cat==='all'?'active':''}" data-c="all">Tudo</span>`,
+    `<span class="chip gold ${state.cat==='__special'?'active':''}" data-c="__special">★ Especiais</span>`]
+    .concat(cats.map(c=>`<span class="chip ${state.cat===c?'active':''}" data-c="${c}">${c}</span>`));
+  $("#cats").innerHTML = chips.join("");
+  $("#cats").querySelectorAll(".chip").forEach(el=>{
+    el.onclick=()=>{ state.cat=el.dataset.c; renderResults(); syncChips(); };
+  });
+}
+function syncChips(){
+  $("#cats").querySelectorAll(".chip").forEach(el=>{
+    el.classList.toggle("active", el.dataset.c===state.cat);
+  });
+}
+
+function filtered(){
+  const q = state.q.trim().toLowerCase();
+  return album().stickers.filter(s=>{
+    if(state.cat==="__special" && !s.is_special) return false;
+    if(state.cat!=="all" && state.cat!=="__special" && s.category!==state.cat) return false;
+    if(q){
+      return s.code.toLowerCase().includes(q) || (s.label||"").toLowerCase().includes(q)
+        || s.category.toLowerCase().includes(q);
+    }
+    return true;
+  });
+}
+
+function cardHTML(s,i){
+  return `<div class="card ${s.is_special?'special':''}" data-i="${i}">
+    ${s.is_special?'<span class="star">★</span>':''}
+    <div class="code">${s.code}</div><div class="lab">${s.label||''}</div></div>`;
+}
+
+function renderResults(){
+  const list = filtered();
+  $("#count").textContent = `${list.length} figurinha${list.length!==1?'s':''}`;
+  if(!list.length){ $("#results").innerHTML = `<div class="empty">Nada encontrado. Tente outro número, código ou nome.</div>`; return; }
+  // agrupar por categoria, preservando ordem do catálogo
+  const groups=[]; const idx={};
+  list.forEach(s=>{ if(!(s.category in idx)){ idx[s.category]=groups.length; groups.push({cat:s.category,items:[]}); } groups[idx[s.category]].items.push(s); });
+  const all = filtered(); // índice estável p/ abrir detalhe
+  $("#results").innerHTML = groups.map(g=>`
+    <section class="group"><h2>${g.cat} <span class="cnt">${g.items.length}</span></h2>
+    <div class="grid">${g.items.map(s=>cardHTML(s, all.indexOf(s))).join("")}</div></section>`).join("");
+  $("#results").querySelectorAll(".card").forEach(el=>{
+    el.onclick=()=>openSheet(all[+el.dataset.i]);
+  });
+}
+
+function openSheet(s){
+  $("#sheet").innerHTML = `
+    <span class="x" id="closeX">&times;</span>
+    <div class="big">
+      <div class="badge ${s.is_special?'special':''}">${s.code}</div>
+      <div><h3>${s.label||s.code}</h3>
+        <span class="pill ${s.is_special?'gold':''}">${s.is_special?'★ Especial':'Comum'}</span></div>
+    </div>
+    <div class="kv">
+      <div><span>Código</span><b>${s.code}</b></div>
+      <div><span>Categoria</span><b>${s.category}</b></div>
+      <div><span>Álbum</span><b>${album().name} · ${album().edition}</b></div>
+      <div><span>Editora</span><b>${album().publisher}</b></div>
+    </div>`;
+  $("#closeX").onclick=closeSheet;
+  $("#ov").classList.add("open");
+}
+function closeSheet(){ $("#ov").classList.remove("open"); }
+$("#ov").addEventListener("click",e=>{ if(e.target.id==="ov") closeSheet(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeSheet(); });
+
+$("#q").addEventListener("input",e=>{ state.q=e.target.value; renderResults(); });
+
+function renderAll(){ initAlbumSelect(); renderChips(); renderResults(); renderInfo(); }
+function renderInfo(){
+  const a=album();
+  $("#albumInfo").innerHTML = `Protótipo de consulta · ${a.name} (${a.total_count} figurinhas, ${a.stickers.filter(s=>s.is_special).length} especiais). `
+    +`Dados ilustrativos e embutidos no arquivo — para o app real, troque a constante CATALOGO por uma chamada à API.`;
+}
+
+renderAll();
+</script>
+</body>
+</html>
