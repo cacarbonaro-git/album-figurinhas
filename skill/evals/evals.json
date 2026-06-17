@@ -1,0 +1,23 @@
+{
+  "skill_name": "arquiteto-album-figurinhas",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Eu e uns amigos colecionamos o álbum da Copa 2026 da Panini (são 670 figurinhas) e a gente vive trocando repetida num grupo de WhatsApp, mandando aquelas listas 'tenho 1,4,9 / falta 12,30'. Queria um sistema onde cada um cadastra o que tem e o que falta e o sistema mostra com quem dá pra trocar. Pode montar isso pra mim?",
+      "expected_output": "Especificação curta + web app multiusuário com backend leve: modelo de dados com álbum/figurinha/coleção(quantidade)/troca, importação do formato WhatsApp, e tela/endpoint de matching mútuo. Código funcional, não só diagrama.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Me ajuda a modelar o banco de dados de um app de troca de figurinhas? Quero que funcione pra qualquer álbum, com figurinhas que às vezes são tipo 'BRA1', 'FWC3' e não só número, e gente que tem várias repetidas da mesma. O importante é conseguir achar trocas boas entre as pessoas.",
+      "expected_output": "Esquema de banco (tabelas albums, stickers com código string, users, user_stickers com quantidade, trades) + explicação do algoritmo de matching como interseção de repetidas e faltantes, atento às armadilhas (código não-int, quantidade, simetria, escala).",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Quero um controle pessoal simples pra eu marcar quais figurinhas do meu álbum eu já tenho e quais faltam. É só pra mim, não preciso de login nem nada online. O álbum tem 200 figurinhas numeradas de 1 a 200.",
+      "expected_output": "Reconhece que é caso pessoal single-user e NÃO força backend/multiusuário: entrega um app de página única .html auto-contido, mobile-first, com grade tocável e cálculo de faltantes/progresso. Honesto sobre não precisar de nuvem.",
+      "files": []
+    }
+  ]
+}
